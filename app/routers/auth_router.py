@@ -16,7 +16,8 @@ async def login_page(request: Request):
     if user:
         return RedirectResponse(url="/formats", status_code=302)
     return templates.TemplateResponse(
-        name="auth/login.html",
+        request,
+        "auth/login.html",
         context={"request": request},
     )
 
@@ -50,12 +51,14 @@ async def login_submit(
     except Exception as e:
         from app.templating import templates
         return templates.TemplateResponse(
-            name="auth/login.html",
+            request,
+            "auth/login.html",
             context={"request": request, "error": str(e)},
         )
     from app.templating import templates
     return templates.TemplateResponse(
-        name="auth/login.html",
+        request,
+        "auth/login.html",
         context={"request": request, "error": "Error al iniciar sesión"},
     )
 
