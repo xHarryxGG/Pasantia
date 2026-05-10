@@ -16,7 +16,7 @@ async def login_page(request: Request):
     user = await get_current_user_optional(request)
     if user:
         return RedirectResponse(url="/formats", status_code=302)
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+    return templates.TemplateResponse(request, "auth/login.html", context={})
 
 
 @router.post("/login")
