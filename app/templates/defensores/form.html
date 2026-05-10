@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{% if defender %}Editar defensor{% else %}Nuevo defensor{% endif %} - CMDNNA{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>{% if defender %}Editar Defensor{% else %}Nuevo Defensor{% endif %}</h2>
+    <div class="button-group">
+        <a href="/formats/{{ department.id }}/defensores" class="btn btn-secondary">Volver al listado</a>
+    </div>
+</div>
+
+<form method="post" action="{% if defender %}/formats/{{ department.id }}/defensores/{{ defender.id }}{% else %}/formats/{{ department.id }}/defensores{% endif %}" class="cmdnna-form">
+    <div class="card">
+        <div class="form-row-inline">
+            <div class="form-group">
+                <label for="apellidos">Apellidos *</label>
+                <input type="text" id="apellidos" name="apellidos" value="{{ payload.get('apellidos', '') }}" required>
+            </div>
+            <div class="form-group">
+                <label for="nombres">Nombres *</label>
+                <input type="text" id="nombres" name="nombres" value="{{ payload.get('nombres', '') }}" required>
+            </div>
+            <div class="form-group">
+                <label for="cedula">Cedula de identidad *</label>
+                <input type="text" id="cedula" name="cedula" value="{{ payload.get('cedula', '') }}" required>
+            </div>
+        </div>
+
+        <div class="form-row-inline">
+            <div class="form-group">
+                <label for="registro_asignado">Registro asignado *</label>
+                <input type="text" id="registro_asignado" name="registro_asignado" value="{{ payload.get('registro_asignado', '') }}" required>
+            </div>
+            <div class="form-group">
+                <label for="condicion">Activo / No activo *</label>
+                <select id="condicion" name="condicion" required>
+                    <option value="">Seleccione...</option>
+                    {% for opcion in condiciones %}
+                    <option value="{{ opcion }}" {% if payload.get('condicion', '') == opcion %}selected{% endif %}>{{ opcion }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo_defensor">Tipo de defensor *</label>
+                <select id="tipo_defensor" name="tipo_defensor" required>
+                    <option value="">Seleccione...</option>
+                    {% for opcion in tipos_defensor %}
+                    <option value="{{ opcion }}" {% if payload.get('tipo_defensor', '') == opcion %}selected{% endif %}>{{ opcion }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row-inline">
+            <div class="form-group">
+                <label for="fecha_entrada">Fecha de entrada</label>
+                <input type="date" id="fecha_entrada" name="fecha_entrada" value="{{ payload.get('fecha_entrada', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="fecha_vencimiento">Fecha de vencimiento</label>
+                <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" value="{{ payload.get('fecha_vencimiento', '') }}">
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="/formats/{{ department.id }}/defensores" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

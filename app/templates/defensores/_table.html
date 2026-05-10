@@ -1,0 +1,45 @@
+<div id="defensores-table-section">
+    <div class="table-wrap">
+        <table class="table cmdnna-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Apellidos</th>
+                    <th>Nombres</th>
+                    <th>Cedula de identidad</th>
+                    <th>Registro asignado</th>
+                    <th>Activo / No activo</th>
+                    <th>Tipo de defensor</th>
+                    <th>Fecha de entrada</th>
+                    <th>Fecha de vencimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for defender in defenders %}
+                <tr>
+                    <td>{{ defender.row_number }}</td>
+                    <td>{{ defender.apellidos }}</td>
+                    <td>{{ defender.nombres }}</td>
+                    <td>{{ defender.cedula }}</td>
+                    <td>{{ defender.registro_asignado }}</td>
+                    <td>{{ defender.condicion }}</td>
+                    <td>{{ defender.tipo_defensor }}</td>
+                    <td>{{ defender.fecha_entrada_fmt }}</td>
+                    <td>{{ defender.fecha_vencimiento_fmt }}</td>
+                    <td>
+                        <a href="/formats/{{ department.id }}/defensores/{{ defender.id }}/edit" class="btn btn-small">Editar</a>
+                        <form method="post" action="/formats/{{ department.id }}/defensores/{{ defender.id }}/delete" class="inline-form" onsubmit="return confirm('¿Eliminar este defensor?');">
+                            <button type="submit" class="btn btn-small btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not defenders %}
+    <p class="empty-state">No hay defensores cargados. <a href="/formats/{{ department.id }}/defensores/new">Registrar el primero</a>.</p>
+    {% endif %}
+</div>

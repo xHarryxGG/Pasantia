@@ -1,0 +1,38 @@
+<div id="fnmi-table-section">
+    <div class="table-wrap">
+        <table class="table fnmi-psy-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre y apellido</th>
+                    <th>Lugar de nacimiento</th>
+                    <th>Colegio</th>
+                    <th>Fecha de evaluacion</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in forms %}
+                <tr>
+                    <td>{{ row.row_number }}</td>
+                    <td>{{ row.nombre_apellido }}</td>
+                    <td>{{ row.lugar_nacimiento }}</td>
+                    <td>{{ row.colegio_estudio }}</td>
+                    <td>{{ row.fecha_evaluacion_fmt }}</td>
+                    <td>
+                        <a href="/formats/{{ department.id }}/psicopedagogia/{{ row.id }}/edit" class="btn btn-small">Editar</a>
+                        <a href="/formats/{{ department.id }}/psicopedagogia/{{ row.id }}/export/pdf?v={{ export_token }}" class="btn btn-small btn-secondary" download>PDF</a>
+                        <form method="post" action="/formats/{{ department.id }}/psicopedagogia/{{ row.id }}/delete" class="inline-form" onsubmit="return confirm('¿Eliminar esta ficha?');">
+                            <button type="submit" class="btn btn-small btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not forms %}
+    <p class="empty-state">No hay fichas cargadas. <a href="/formats/{{ department.id }}/psicopedagogia/new">Registrar la primera</a>.</p>
+    {% endif %}
+</div>

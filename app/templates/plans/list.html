@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Planes de Acción - SIPF{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>Planes de Acción</h2>
+    <div class="button-group">
+        <a href="/plans/new" class="btn btn-primary">Nuevo plan</a>
+        <a href="/plans" class="btn btn-secondary">Inicio</a>
+    </div>
+</div>
+
+{% if departments %}
+<div class="filter-bar">
+    <form method="get" action="/plans">
+        <label for="department_id">Filtrar por departamento:</label>
+        <select name="department_id" id="department_id" onchange="this.form.submit()">
+            <option value="">Todos los departamentos</option>
+            {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if selected_department and selected_department == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+{% endif %}
+
+{% include "plans/_plans_list.html" %}
+{% endblock %}

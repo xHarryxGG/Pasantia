@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Formatos - {{ department.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>Formatos - {{ department.name }}</h2>
+    <div class="button-group">
+        {% if is_admin %}
+        <a href="/formats" class="btn btn-secondary">Volver al inicio</a>
+        {% endif %}
+    </div>
+</div>
+
+<p class="page-intro">Seleccione el formato que desea gestionar para este departamento.</p>
+
+<div class="department-grid">
+    <a href="/plans?department_id={{ department.id }}" class="department-card format-card">
+        <div class="card-preview card-preview-plans">
+            <span class="card-preview-label">Vista previa</span>
+        </div>
+        <h3>Plan de Accion</h3>
+        <p>Crear, editar y exportar los planes de accion mensuales.</p>
+        <span class="btn btn-primary">Abrir</span>
+    </a>
+
+    {% if show_cmdnna_defenders %}
+    <a href="/formats/{{ department.id }}/defensores" class="department-card format-card">
+        <div class="card-preview card-preview-defenders">
+            <span class="card-preview-label">Vista previa</span>
+        </div>
+        <h3>Listado de Defensores</h3>
+        <p>Crear, editar, eliminar y exportar el listado oficial de defensores del CMDNNA.</p>
+        <span class="btn btn-primary">Abrir</span>
+    </a>
+    {% endif %}
+
+    {% if show_fnmi_psicopedagogia %}
+    <a href="/formats/{{ department.id }}/psicopedagogia" class="department-card format-card">
+        <div class="card-preview card-preview-fnmi">
+            <span class="card-preview-label">Vista previa</span>
+        </div>
+        <h3>Ficha de Evaluacion Psicopedagogica</h3>
+        <p>Registrar y exportar en PDF las fichas de evaluacion psicopedagogica del FNMI.</p>
+        <span class="btn btn-primary">Abrir</span>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

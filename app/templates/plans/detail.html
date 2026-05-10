@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Plan de Acción - SIPF{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>Plan de Acción</h2>
+    <div class="button-group">
+        <a href="/plans" class="btn btn-secondary">Volver a planes</a>
+        <a href="/plans/{{ plan.id }}/export/pdf" class="btn btn-secondary" target="_blank">Exportar PDF</a>
+        <a href="/plans/{{ plan.id }}/export/excel" class="btn btn-secondary">Exportar Excel</a>
+    </div>
+</div>
+{% include "plans/_activities_table.html" %}
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - SIPF</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <script>
+        (function () {
+            var saved = localStorage.getItem("sipf-theme");
+            var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+            var theme = saved || (prefersLight ? "light" : "dark");
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <h1>SIPF</h1>
+        <p class="login-subtitle">Sistema Integral de Protección de la Familia<br>Municipio Independencia, Estado Anzoátegui</p>
+        
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="post" action="/auth/login" class="login-form">
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+        </form>
+    </div>
+
+    <div class="theme-fab" aria-label="Selector de tema">
+        <label class="theme-toggle" for="theme-toggle-input" title="Cambiar entre modo claro y oscuro">
+            <input type="checkbox" id="theme-toggle-input" aria-label="Cambiar tema">
+            <span class="theme-track">
+                <span class="theme-icon theme-icon-sun"></span>
+                <span class="theme-thumb"></span>
+                <span class="theme-icon theme-icon-moon"></span>
+            </span>
+        </label>
+    </div>
+    <script src="/static/js/theme-toggle.js"></script>
+</body>
+</html>

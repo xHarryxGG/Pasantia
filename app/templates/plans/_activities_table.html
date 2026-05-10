@@ -1,0 +1,102 @@
+{% macro schedule_week_cell(activity, week_number, week_idx) %}
+{% set sched = (activity.activity_schedules or [])|selectattr('week_number', 'equalto', week_number)|list|first %}
+{% set days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] %}
+{% for i in range(7) %}
+<td class="schedule-week-cell">
+    <form method="post" action="/plans/{{ plan.id }}/activities/{{ activity.id }}/schedule/{{ week_number }}"
+        class="schedule-form"
+        hx-post="/plans/{{ plan.id }}/activities/{{ activity.id }}/schedule/{{ week_number }}"
+        hx-trigger="change delay:300ms"
+        hx-swap="none"
+        hx-include=".week-{{ week_number }}">
+        <input type="hidden" name="{{ days[i] }}" value="false">
+        <input class="week-{{ week_number }}" type="checkbox" name="{{ days[i] }}" value="true" {{ 'checked' if sched and sched[days[i]] else '' }}>
+    </form>
+</td>
+{% endfor %}
+{% endmacro %}
+<div id="plan-activities-section" class="plan-detail-content">
+    <div class="plan-meta">
+        <h3>Plan de Acción - {{ plan.departments.name if plan.departments else 'N/A' }} - {{ ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][plan.month - 1] }} {{ plan.year }}</h3>
+        <p class="plan-goal"><strong>Meta:</strong> {{ plan.goal }}</p>
+    </div>
+    <div class="add-activity-form">
+        <form method="post" action="/plans/{{ plan.id }}/activities"
+            hx-post="/plans/{{ plan.id }}/activities"
+            hx-target="#plan-activities-section"
+            hx-swap="outerHTML"
+            hx-trigger="submit">
+            <input type="hidden" name="plan_month" value="{{ plan.month }}">
+            <input type="hidden" name="plan_year" value="{{ plan.year }}">
+            <input type="hidden" name="plan_goal" value="{{ plan.goal }}">
+            <input type="hidden" name="department_code" value="{{ plan.departments.code if plan.departments else '' }}">
+            <input type="hidden" name="department_name" value="{{ plan.departments.name if plan.departments else '' }}">
+            <div class="form-row">
+                <input type="text" name="description" placeholder="Actividad" required>
+                <input type="text" name="location" placeholder="Lugar">
+                <input type="text" name="logistics" placeholder="Logística">
+                <button type="submit" class="btn btn-primary">Añadir actividad</button>
+            </div>
+        </form>
+    </div>
+    <div class="schedule-table-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th rowspan="2">Metas</th>
+                    <th rowspan="2">Ente Responsable</th>
+                    <th rowspan="2">Actividad</th>
+                    <th rowspan="2">Lugar</th>
+                    <th rowspan="2">Logística</th>
+                    {% for w in weeks %}
+                    <th colspan="7" class="week-header">Semana {{ w }}</th>
+                    {% endfor %}
+                    <th rowspan="2">Acciones</th>
+                </tr>
+                <tr>
+                    {% set letters = ['L','M','M','J','V','S','D'] %}
+                    {% for w in weeks %}
+                        {% set numbers = week_day_numbers[loop.index0] if week_day_numbers and week_day_numbers|length > loop.index0 else ["","","","","","",""] %}
+                        {% for i in range(7) %}
+                        <th class="day-header">
+                            <div class="day-letter {% if numbers[i] %}day-letter--separated{% endif %}">{{ letters[i] }}</div>
+                            <div class="day-number">{{ numbers[i] }}</div>
+                        </th>
+                        {% endfor %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    {% if loop.first %}
+                    <td rowspan="{{ activities|length }}" class="goal-cell">{{ plan.goal }}</td>
+                    <td rowspan="{{ activities|length }}">{{ plan.departments.code if plan.departments else '' }}</td>
+                    {% endif %}
+                    <td class="activity-cell">{{ activity.description }}</td>
+                    <td class="location-cell">{{ activity.location }}</td>
+                    <td class="logistics-cell">{{ activity.logistics }}</td>
+                    {% for w in weeks %}
+                    {{ schedule_week_cell(activity, w, loop.index0) }}
+                    {% endfor %}
+                    <td>
+                        <button type="button" class="btn btn-small btn-danger"
+                            hx-delete="/plans/{{ plan.id }}/activities/{{ activity.id }}"
+                            hx-vals='{"plan_month": {{ plan.month }}, "plan_year": {{ plan.year }}, "plan_goal": {{ plan.goal|tojson }}, "department_code": {{ (plan.departments.code if plan.departments else "")|tojson }}, "department_name": {{ (plan.departments.name if plan.departments else "")|tojson }}}'
+                            hx-target="#plan-activities-section"
+                            hx-swap="outerHTML"
+                            hx-confirm="¿Eliminar esta actividad?">Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not activities %}
+                <tr>
+                    <td>{{ plan.goal }}</td>
+                    <td>{{ plan.departments.code if plan.departments else '' }}</td>
+                    <td colspan="{{ 3 + weeks|length * 7 + 1 }}">No hay actividades. Añada una arriba.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>

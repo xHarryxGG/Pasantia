@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{% if form_record %}Editar ficha{% else %}Nueva ficha{% endif %} - FNMI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>{% if form_record %}Editar ficha psicopedagogica{% else %}Nueva ficha psicopedagogica{% endif %}</h2>
+    <div class="button-group">
+        <a href="/formats/{{ department.id }}/psicopedagogia" class="btn btn-secondary">Volver al listado</a>
+    </div>
+</div>
+
+<form method="post" action="{% if form_record %}/formats/{{ department.id }}/psicopedagogia/{{ form_record.id }}{% else %}/formats/{{ department.id }}/psicopedagogia{% endif %}" class="fnmi-psy-form">
+    <div class="card">
+        <div class="form-row-inline">
+            <div class="form-group fnmi-psy-half">
+                <label for="nombre_apellido">Nombre y apellido *</label>
+                <input type="text" id="nombre_apellido" name="nombre_apellido" value="{{ payload.get('nombre_apellido', '') }}" required>
+            </div>
+            <div class="form-group fnmi-psy-half">
+                <label for="lugar_nacimiento">Lugar de nacimiento</label>
+                <input type="text" id="lugar_nacimiento" name="lugar_nacimiento" value="{{ payload.get('lugar_nacimiento', '') }}">
+            </div>
+        </div>
+
+        <div class="form-row-inline">
+            <div class="form-group fnmi-psy-half">
+                <label for="colegio_estudio">Colegio donde estudia</label>
+                <input type="text" id="colegio_estudio" name="colegio_estudio" value="{{ payload.get('colegio_estudio', '') }}">
+            </div>
+            <div class="form-group fnmi-psy-half">
+                <label for="fecha_evaluacion">Fecha de evaluacion</label>
+                <input type="date" id="fecha_evaluacion" name="fecha_evaluacion" value="{{ payload.get('fecha_evaluacion', '') }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="aspecto_fisico">Aspecto fisico</label>
+            <textarea id="aspecto_fisico" name="aspecto_fisico" rows="4">{{ payload.get('aspecto_fisico', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="motricidad_gruesa">Motricidad gruesa</label>
+            <textarea id="motricidad_gruesa" name="motricidad_gruesa" rows="4">{{ payload.get('motricidad_gruesa', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="motricidad_fina">Motricidad fina</label>
+            <textarea id="motricidad_fina" name="motricidad_fina" rows="4">{{ payload.get('motricidad_fina', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="esquema_corporal">Esquema corporal</label>
+            <textarea id="esquema_corporal" name="esquema_corporal" rows="4">{{ payload.get('esquema_corporal', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="orientacion_temporo_espacial">Orientacion temporo-espacial</label>
+            <textarea id="orientacion_temporo_espacial" name="orientacion_temporo_espacial" rows="4">{{ payload.get('orientacion_temporo_espacial', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="memoria">Memoria</label>
+            <textarea id="memoria" name="memoria" rows="4">{{ payload.get('memoria', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="atencion_concentracion">Atencion y concentracion</label>
+            <textarea id="atencion_concentracion" name="atencion_concentracion" rows="4">{{ payload.get('atencion_concentracion', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="lenguaje">Lenguaje</label>
+            <textarea id="lenguaje" name="lenguaje" rows="4">{{ payload.get('lenguaje', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="aspecto_social">Aspecto social</label>
+            <textarea id="aspecto_social" name="aspecto_social" rows="4">{{ payload.get('aspecto_social', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="aspecto_escolar_lectura">Aspecto escolar - lectura</label>
+            <textarea id="aspecto_escolar_lectura" name="aspecto_escolar_lectura" rows="4">{{ payload.get('aspecto_escolar_lectura', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="escritura">Escritura</label>
+            <textarea id="escritura" name="escritura" rows="5">{{ payload.get('escritura', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="pre_calculo">Pre-calculo</label>
+            <textarea id="pre_calculo" name="pre_calculo" rows="5">{{ payload.get('pre_calculo', '') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="recomendaciones">Recomendaciones</label>
+            <textarea id="recomendaciones" name="recomendaciones" rows="8">{{ payload.get('recomendaciones', '') }}</textarea>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="/formats/{{ department.id }}/psicopedagogia" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

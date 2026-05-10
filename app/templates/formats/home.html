@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Inicio de Formatos - SIPF{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>Inicio Administrativo</h2>
+</div>
+
+<p class="page-intro">Seleccione un departamento para ver sus formatos disponibles.</p>
+
+<div class="department-grid">
+    {% for dept in departments %}
+    <a href="/formats/{{ dept.id }}" class="department-card">
+        <div class="card-preview card-preview-department">
+            <span class="card-preview-label">{{ dept.code }}</span>
+        </div>
+        <h3>{{ dept.name }}</h3>
+        <p>Acceda rapidamente a todos los formatos disponibles de este departamento.</p>
+        <span class="btn btn-primary">Ver formatos</span>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

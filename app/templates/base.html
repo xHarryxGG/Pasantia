@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SIPF - Plan de Acción{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        (function () {
+            var saved = localStorage.getItem("sipf-theme");
+            var prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+            var theme = saved || (prefersLight ? "light" : "dark");
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {% block body %}
+    <header class="header">
+        <div class="header-content">
+            <h1>SIPF - Sistema Integral de Protección de la Familia</h1>
+            <button class="menu-toggle" aria-label="Menú" id="menu-toggle">
+                <img src="/static/images/menu-claro.svg" alt="Menú" class="menu-icon menu-icon-light">
+                <img src="/static/images/menu-oscuro.svg" alt="Menú" class="menu-icon menu-icon-dark">
+            </button>
+            <nav class="nav" id="nav">
+                {% if user %}
+                {% if user.profile and user.profile.role == 'admin' %}
+                <a href="/formats">Inicio admin</a>
+                {% endif %}
+                {% if user.profile and user.profile.role != 'admin' %}
+                <a href="/formats">Inicio</a>
+                {% endif %}
+                <a href="/stats">Estadísticas</a>
+                {% if user.profile and user.profile.role == 'admin' %}
+                <a href="/admin/users">Usuarios</a>
+                {% endif %}
+                <a href="/auth/logout">Cerrar sesión</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+    <div class="theme-fab" aria-label="Selector de tema">
+        <label class="theme-toggle" for="theme-toggle-input" title="Cambiar entre modo claro y oscuro">
+            <input type="checkbox" id="theme-toggle-input" aria-label="Cambiar tema">
+            <span class="theme-track">
+                <span class="theme-icon theme-icon-sun"></span>
+                <span class="theme-thumb"></span>
+                <span class="theme-icon theme-icon-moon"></span>
+            </span>
+        </label>
+    </div>
+    {% endblock %}
+    <script src="/static/js/theme-toggle.js"></script>
+</body>
+</html>

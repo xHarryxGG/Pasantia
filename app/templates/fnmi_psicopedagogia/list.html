@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Fichas Psicopedagogicas - FNMI{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>Fichas Psicopedagogicas - {{ department.name }}</h2>
+    <div class="button-group">
+        <a href="/formats/{{ department.id }}" class="btn btn-secondary">Volver a formatos</a>
+        <a href="/formats/{{ department.id }}/psicopedagogia/new" class="btn btn-primary">Nueva ficha</a>
+    </div>
+</div>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="filter-bar">
+    <form method="get" action="/formats/{{ department.id }}/psicopedagogia" class="filter-form" id="fnmi-search-form">
+        <div class="form-group">
+            <label for="q">Buscar por nombre o fecha</label>
+            <input type="text" id="q" name="q" value="{{ filters.q }}" placeholder="Ej. Maria Perez o 2026-04-10" autocomplete="off"
+                hx-get="/formats/{{ department.id }}/psicopedagogia"
+                hx-trigger="input changed delay:600ms, search"
+                hx-target="#fnmi-table-section"
+                hx-select="#fnmi-table-section"
+                hx-swap="outerHTML"
+                hx-push-url="true"
+                hx-sync="this:replace">
+        </div>
+    </form>
+</div>
+
+<script>
+(() => {
+    const input = document.getElementById("q");
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener("input", (event) => {
+        const value = event.target.value.trim();
+        if (value.length === 1) {
+            event.stopImmediatePropagation();
+        }
+    }, true);
+})();
+</script>
+
+{% include "fnmi_psicopedagogia/_table.html" %}
+{% endblock %}

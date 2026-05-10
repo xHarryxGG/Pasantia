@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+{% block title %}Estadísticas - SIPF{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>Estadísticas</h2>
+    <div class="button-group">
+        <a href="/formats" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+</div>
+
+<p class="page-intro">
+    {% if is_admin %}
+    Panel de estadísticas de planes de acción y actividades de todos los departamentos.
+    {% else %}
+    Estadísticas de los planes de acción y actividades de su departamento.
+    {% endif %}
+</p>
+
+<!-- ── Filters ──────────────────────────────────────────────────── -->
+<div class="stats-filters">
+    <div class="stats-filter-group">
+        <label for="stats-year-select">Año</label>
+        <select id="stats-year-select">
+            <option value="">Todos los años</option>
+            {% for y in years %}
+            <option value="{{ y }}" {% if y == current_year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if is_admin %}
+    <div class="stats-filter-group">
+        <label for="stats-dept-select">Departamento</label>
+        <select id="stats-dept-select">
+            <option value="">Todos los departamentos</option>
+            {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ── KPI Cards ─────────────────────────────────────────────────── -->
+<div class="stats-kpi-grid" id="stats-kpi-grid">
+    <div class="stats-kpi-card">
+        <div class="stats-kpi-icon">📋</div>
+        <div class="stats-kpi-value" id="kpi-plans">—</div>
+        <div class="stats-kpi-label">Planes de Acción</div>
+    </div>
+    <div class="stats-kpi-card">
+        <div class="stats-kpi-icon">📌</div>
+        <div class="stats-kpi-value" id="kpi-activities">—</div>
+        <div class="stats-kpi-label">Actividades</div>
+    </div>
+    <div class="stats-kpi-card">
+        <div class="stats-kpi-icon">📊</div>
+        <div class="stats-kpi-value" id="kpi-avg">—</div>
+        <div class="stats-kpi-label">Promedio act./plan</div>
+    </div>
+</div>
+
+<!-- ── Charts Grid ───────────────────────────────────────────────── -->
+<div class="stats-charts-grid" id="stats-charts-grid">
+    <!-- 1. Plans by month -->
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3>Planes por Mes</h3>
+            <button class="stats-export-btn" data-chart="plansByMonth" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-plans-by-month"></canvas>
+    </div>
+
+    <!-- 2. Activities by month -->
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3>Actividades por Mes</h3>
+            <button class="stats-export-btn" data-chart="activitiesByMonth" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-activities-by-month"></canvas>
+    </div>
+
+    <!-- 3. Activities per plan -->
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3>Actividades por Plan</h3>
+            <button class="stats-export-btn" data-chart="activitiesPerPlan" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-activities-per-plan"></canvas>
+    </div>
+
+    <!-- 4. Weekly coverage (radar) -->
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3>Cobertura Semanal</h3>
+            <button class="stats-export-btn" data-chart="weekCoverage" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-week-coverage"></canvas>
+    </div>
+
+    <!-- 5. Plans by department (admin only) -->
+    <div class="stats-chart-card stats-admin-only" id="card-dept-plans" style="display:none;">
+        <div class="stats-chart-header">
+            <h3>Planes por Departamento</h3>
+            <button class="stats-export-btn" data-chart="deptPlans" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-dept-plans"></canvas>
+    </div>
+
+    <!-- 6. Activities by department (admin only) -->
+    <div class="stats-chart-card stats-admin-only" id="card-dept-activities" style="display:none;">
+        <div class="stats-chart-header">
+            <h3>Actividades por Departamento</h3>
+            <button class="stats-export-btn" data-chart="deptActivities" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-dept-activities"></canvas>
+    </div>
+
+    <!-- 7. Year over year comparison -->
+    <div class="stats-chart-card stats-chart-wide">
+        <div class="stats-chart-header">
+            <h3>Comparación Año a Año</h3>
+            <button class="stats-export-btn" data-chart="yearOverYear" title="Descargar como imagen">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+        </div>
+        <canvas id="chart-year-over-year"></canvas>
+    </div>
+</div>
+
+<!-- ── Loading overlay ───────────────────────────────────────────── -->
+<div class="stats-loading" id="stats-loading">
+    <div class="stats-loading-spinner"></div>
+    <span>Cargando estadísticas…</span>
+</div>
+
+<!-- ── Chart.js CDN ──────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    const IS_ADMIN = {{ "true" if is_admin else "false" }};
+    const MONTH_LABELS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const DAY_LABELS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+
+    /* ── Theme-aware colour palette ──────────────────────────────── */
+    function getThemeColors() {
+        const root = getComputedStyle(document.documentElement);
+        const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+        return {
+            primary: root.getPropertyValue("--primary").trim() || "#7c62ff",
+            secondary: root.getPropertyValue("--secondary").trim() || "#2ad4b2",
+            text: root.getPropertyValue("--text").trim() || "#eef2ff",
+            textMuted: root.getPropertyValue("--text-muted").trim() || "#aeb7d3",
+            surface: root.getPropertyValue("--surface").trim() || "#0f1730",
+            border: root.getPropertyValue("--border").trim() || "#273153",
+            isDark: isDark,
+            /* Palette for multiple datasets */
+            palette: isDark
+                ? ["#7c62ff", "#2ad4b2", "#ff6b88", "#ffd676", "#56b4ff", "#c589ff", "#ff9f5a", "#6bffb8"]
+                : ["#5c52ff", "#11b894", "#d84f67", "#e6a730", "#3181d4", "#9b5dcc", "#e07c3f", "#2eb88a"],
+        };
+    }
+
+    /* ── Chart instances store ────────────────────────────────────── */
+    const charts = {};
+
+    function destroyAllCharts() {
+        for (const key of Object.keys(charts)) {
+            if (charts[key]) { charts[key].destroy(); charts[key] = null; }
+        }
+    }
+
+    /* ── Default Chart.js options ─────────────────────────────────── */
+    function defaultOptions(tc) {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 700, easing: "easeOutQuart" },
+            plugins: {
+                legend: {
+                    labels: { color: tc.text, font: { family: "'Manrope', sans-serif", size: 12 } }
+                },
+                tooltip: {
+                    backgroundColor: tc.isDark ? "rgba(15,23,48,0.92)" : "rgba(255,255,255,0.96)",
+                    titleColor: tc.text,
+                    bodyColor: tc.text,
+                    borderColor: tc.border,
+                    borderWidth: 1,
+                    cornerRadius: 10,
+                    padding: 10,
+                    titleFont: { family: "'Manrope', sans-serif", weight: "700" },
+                    bodyFont: { family: "'Manrope', sans-serif" },
+                },
+            },
+            scales: {
+                x: { ticks: { color: tc.textMuted, font: { family: "'Manrope'" } }, grid: { color: tc.border + "44" } },
+                y: { ticks: { color: tc.textMuted, font: { family: "'Manrope'" } }, grid: { color: tc.border + "44" }, beginAtZero: true },
+            }
+        };
+    }
+
+    /* ── Render charts ───────────────────────────────────────────── */
+    function renderCharts(data) {
+        destroyAllCharts();
+        const tc = getThemeColors();
+        const dOpts = defaultOptions(tc);
+
+        /* KPIs */
+        document.getElementById("kpi-plans").textContent = data.kpi.total_plans;
+        document.getElementById("kpi-activities").textContent = data.kpi.total_activities;
+        document.getElementById("kpi-avg").textContent = data.kpi.avg_activities_per_plan;
+
+        /* 1. Plans by month */
+        charts.plansByMonth = new Chart(document.getElementById("chart-plans-by-month"), {
+            type: "bar",
+            data: {
+                labels: MONTH_LABELS,
+                datasets: [{
+                    label: "Planes",
+                    data: data.plans_by_month,
+                    backgroundColor: tc.primary + "cc",
+                    borderColor: tc.primary,
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    hoverBackgroundColor: tc.primary,
+                }]
+            },
+            options: { ...dOpts, plugins: { ...dOpts.plugins, legend: { display: false } } }
+        });
+
+        /* 2. Activities by month */
+        charts.activitiesByMonth = new Chart(document.getElementById("chart-activities-by-month"), {
+            type: "bar",
+            data: {
+                labels: MONTH_LABELS,
+                datasets: [{
+                    label: "Actividades",
+                    data: data.activities_by_month,
+                    backgroundColor: tc.secondary + "cc",
+                    borderColor: tc.secondary,
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    hoverBackgroundColor: tc.secondary,
+                }]
+            },
+            options: { ...dOpts, plugins: { ...dOpts.plugins, legend: { display: false } } }
+        });
+
+        /* 3. Activities per plan (horizontal bar) */
+        const apLabels = data.plan_labels.length > 15 ? data.plan_labels.slice(0, 15) : data.plan_labels;
+        const apData = data.plan_activity_counts.length > 15 ? data.plan_activity_counts.slice(0, 15) : data.plan_activity_counts;
+        charts.activitiesPerPlan = new Chart(document.getElementById("chart-activities-per-plan"), {
+            type: "bar",
+            data: {
+                labels: apLabels,
+                datasets: [{
+                    label: "Actividades",
+                    data: apData,
+                    backgroundColor: tc.palette.slice(0, apLabels.length).map(c => c + "bb"),
+                    borderColor: tc.palette.slice(0, apLabels.length),
+                    borderWidth: 1.5,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                ...dOpts,
+                indexAxis: "y",
+                plugins: { ...dOpts.plugins, legend: { display: false } },
+                scales: {
+                    x: { ...dOpts.scales.x, beginAtZero: true },
+                    y: { ...dOpts.scales.y, grid: { display: false }, ticks: { color: tc.textMuted, font: { family: "'Manrope'", size: 11 } } },
+                }
+            }
+        });
+
+        /* 4. Week coverage (radar) */
+        charts.weekCoverage = new Chart(document.getElementById("chart-week-coverage"), {
+            type: "radar",
+            data: {
+                labels: DAY_LABELS,
+                datasets: [{
+                    label: "Programaciones",
+                    data: data.day_distribution,
+                    backgroundColor: tc.primary + "33",
+                    borderColor: tc.primary,
+                    borderWidth: 2,
+                    pointBackgroundColor: tc.primary,
+                    pointBorderColor: "#fff",
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: dOpts.animation,
+                plugins: { ...dOpts.plugins, legend: { display: false } },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        grid: { color: tc.border + "55" },
+                        angleLines: { color: tc.border + "55" },
+                        pointLabels: { color: tc.text, font: { family: "'Manrope'", size: 12 } },
+                        ticks: { color: tc.textMuted, backdropColor: "transparent", font: { size: 10 } },
+                    }
+                }
+            }
+        });
+
+        /* 5 & 6. Department charts (admin only) */
+        if (IS_ADMIN && data.departments_stats && data.departments_stats.length > 1) {
+            document.getElementById("card-dept-plans").style.display = "";
+            document.getElementById("card-dept-activities").style.display = "";
+
+            const deptLabels = data.departments_stats.map(d => d.name);
+            const deptPlanCounts = data.departments_stats.map(d => d.plans_count);
+            const deptActCounts = data.departments_stats.map(d => d.activities_count);
+
+            charts.deptPlans = new Chart(document.getElementById("chart-dept-plans"), {
+                type: "doughnut",
+                data: {
+                    labels: deptLabels,
+                    datasets: [{
+                        data: deptPlanCounts,
+                        backgroundColor: tc.palette.slice(0, deptLabels.length),
+                        borderColor: tc.isDark ? tc.surface : "#fff",
+                        borderWidth: 3,
+                        hoverOffset: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: dOpts.animation,
+                    cutout: "55%",
+                    plugins: {
+                        ...dOpts.plugins,
+                        legend: {
+                            position: "bottom",
+                            labels: { color: tc.text, font: { family: "'Manrope'", size: 12 }, padding: 16, usePointStyle: true, pointStyle: "circle" }
+                        }
+                    },
+                }
+            });
+
+            charts.deptActivities = new Chart(document.getElementById("chart-dept-activities"), {
+                type: "bar",
+                data: {
+                    labels: deptLabels,
+                    datasets: [{
+                        label: "Actividades",
+                        data: deptActCounts,
+                        backgroundColor: tc.palette.slice(0, deptLabels.length).map(c => c + "cc"),
+                        borderColor: tc.palette.slice(0, deptLabels.length),
+                        borderWidth: 2,
+                        borderRadius: 6,
+                    }]
+                },
+                options: { ...dOpts, plugins: { ...dOpts.plugins, legend: { display: false } } }
+            });
+        } else {
+            document.getElementById("card-dept-plans").style.display = "none";
+            document.getElementById("card-dept-activities").style.display = "none";
+        }
+
+        /* 7. Year over year (line chart) */
+        const yoyDatasets = (data.year_over_year || []).map(function (entry, idx) {
+            const color = tc.palette[idx % tc.palette.length];
+            return {
+                label: String(entry.year),
+                data: entry.months,
+                borderColor: color,
+                backgroundColor: color + "22",
+                borderWidth: 2.5,
+                tension: 0.35,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: color,
+                pointBorderColor: tc.isDark ? tc.surface : "#fff",
+                pointBorderWidth: 2,
+                pointHoverRadius: 7,
+            };
+        });
+        charts.yearOverYear = new Chart(document.getElementById("chart-year-over-year"), {
+            type: "line",
+            data: { labels: MONTH_LABELS, datasets: yoyDatasets },
+            options: {
+                ...dOpts,
+                plugins: {
+                    ...dOpts.plugins,
+                    legend: {
+                        position: "top",
+                        labels: { color: tc.text, font: { family: "'Manrope'", size: 12 }, usePointStyle: true, pointStyle: "circle", padding: 16 }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ── Fetch data ───────────────────────────────────────────────── */
+    async function loadData() {
+        const loading = document.getElementById("stats-loading");
+        const chartsGrid = document.getElementById("stats-charts-grid");
+        const kpiGrid = document.getElementById("stats-kpi-grid");
+        loading.style.display = "flex";
+        chartsGrid.style.opacity = "0.3";
+        kpiGrid.style.opacity = "0.3";
+
+        const yearSelect = document.getElementById("stats-year-select");
+        const deptSelect = document.getElementById("stats-dept-select");
+        const params = new URLSearchParams();
+        if (yearSelect && yearSelect.value) params.set("year", yearSelect.value);
+        if (deptSelect && deptSelect.value) params.set("department_id", deptSelect.value);
+
+        try {
+            const resp = await fetch("/stats/api/data?" + params.toString());
+            if (!resp.ok) throw new Error("HTTP " + resp.status);
+            const data = await resp.json();
+            if (data.error) throw new Error(data.error);
+            renderCharts(data);
+        } catch (err) {
+            console.error("Stats load error:", err);
+            document.getElementById("kpi-plans").textContent = "—";
+            document.getElementById("kpi-activities").textContent = "—";
+            document.getElementById("kpi-avg").textContent = "—";
+        } finally {
+            loading.style.display = "none";
+            chartsGrid.style.opacity = "1";
+            kpiGrid.style.opacity = "1";
+        }
+    }
+
+    /* ── Export chart as PNG ──────────────────────────────────────── */
+    function exportChart(chartKey) {
+        const chart = charts[chartKey];
+        if (!chart) return;
+
+        const tc = getThemeColors();
+        const srcCanvas = chart.canvas;
+        const w = srcCanvas.width;
+        const h = srcCanvas.height;
+
+        // Create an offscreen canvas with a solid background + the chart drawn on top
+        const offscreen = document.createElement("canvas");
+        offscreen.width = w;
+        offscreen.height = h;
+        const ctx = offscreen.getContext("2d");
+
+        // Fill background with theme surface color
+        ctx.fillStyle = tc.isDark ? "#151c33" : "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+
+        // Draw the chart on top
+        ctx.drawImage(srcCanvas, 0, 0);
+
+        // Use synchronous toDataURL — stays within user gesture context for Chrome
+        const dataUrl = offscreen.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "estadistica_" + chartKey + ".png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    /* ── Event listeners ─────────────────────────────────────────── */
+    document.addEventListener("DOMContentLoaded", function () {
+        loadData();
+
+        const yearSelect = document.getElementById("stats-year-select");
+        const deptSelect = document.getElementById("stats-dept-select");
+        if (yearSelect) yearSelect.addEventListener("change", loadData);
+        if (deptSelect) deptSelect.addEventListener("change", loadData);
+
+        /* Export buttons */
+        document.querySelectorAll(".stats-export-btn").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                exportChart(btn.getAttribute("data-chart"));
+            });
+        });
+
+        /* Re-render on theme change to adapt colors */
+        const themeInput = document.getElementById("theme-toggle-input");
+        if (themeInput) {
+            themeInput.addEventListener("change", function () {
+                setTimeout(loadData, 350);
+            });
+        }
+    });
+})();
+</script>
+
+{% endblock %}

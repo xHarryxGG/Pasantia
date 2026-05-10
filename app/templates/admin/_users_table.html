@@ -1,0 +1,53 @@
+<table class="table users-table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Departamento</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.email }}</td>
+            <td><input type="text" name="full_name" value="{{ u.full_name or '' }}" form="form-{{ u.id }}" class="inline-input"></td>
+            <td>
+                <select name="role" form="form-{{ u.id }}">
+                    {% for r in roles %}
+                    <option value="{{ r }}" {{ 'selected' if u.role == r else '' }}>{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <select name="department_id" form="form-{{ u.id }}">
+                    <option value="">-- Ninguno --</option>
+                    {% for d in departments %}
+                    <option value="{{ d.id }}" {{ 'selected' if u.department_id and d.id|string == u.department_id|string else '' }}>{{ d.code }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <form id="form-{{ u.id }}" method="post" action="/admin/users/{{ u.id }}"
+                    hx-post="/admin/users/{{ u.id }}"
+                    hx-target="#users-table-section"
+                    hx-swap="innerHTML"
+                    style="display:inline">
+                    <button type="submit" class="btn btn-small">Guardar</button>
+                </form>
+                <button type="button" class="btn btn-small btn-danger"
+                    hx-delete="/admin/users/{{ u.id }}"
+                    hx-target="#users-table-section"
+                    hx-swap="innerHTML"
+                    hx-confirm="¿Eliminar este usuario?">Eliminar</button>
+            </td>
+        </tr>
+        {% endfor %}
+        {% if not users %}
+        <tr>
+            <td colspan="5">No hay usuarios.</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{% if plan %}Editar Plan{% else %}Nuevo Plan{% endif %} - SIPF{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2>{% if plan %}Editar Plan de Acción{% else %}Nuevo Plan de Acción{% endif %}</h2>
+</div>
+<form method="post" action="{% if plan %}/plans/{{ plan.id }}{% else %}/plans{% endif %}" class="plan-form">
+    {% if not plan %}
+    <div class="form-group">
+        <label for="department_id">Departamento</label>
+        {% if user_department_id %}
+        <input type="hidden" name="department_id" value="{{ user_department_id }}">
+        <p class="form-readonly">{{ user_department_name or 'Su departamento' }}</p>
+        {% else %}
+        <select id="department_id" name="department_id" required>
+            {% for d in departments %}
+            <option value="{{ d.id }}">{{ d.code }} - {{ d.name }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+    </div>
+    {% endif %}
+    <div class="form-group">
+        <label for="month">Mes</label>
+        <select id="month" name="month" required>
+            {% for m in range(1, 13) %}
+            <option value="{{ m }}">{{ ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][m-1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="year">Año</label>
+        <input type="number" id="year" name="year" value="{{ plan.year if plan else current_year }}" min="2020" max="2100" required>
+    </div>
+    <div class="form-group">
+        <label for="goal">Meta</label>
+        <textarea id="goal" name="goal" rows="4">{% if plan %}{{ plan.goal }}{% endif %}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="/plans" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

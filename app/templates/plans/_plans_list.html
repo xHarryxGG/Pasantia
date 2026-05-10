@@ -1,0 +1,35 @@
+<div id="plans-list-section" class="plans-list">
+    {% if plans %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mes/Año</th>
+                <th>Departamento</th>
+                <th>Meta</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plan in plans %}
+            <tr>
+                <td>{{ ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][plan.month - 1] }} {{ plan.year }}</td>
+                <td class="departament-cell">{{ plan.departments.name if plan.departments else plan.department_id }}</td>
+                <td id="goal-cell-plan" class="goal-cell ">{{ plan.goal[:100] }}{% if plan.goal|length > 100 %}...{% endif %}</td>
+                <td>
+                    <a href="/plans/{{ plan.id }}" class="btn btn-small">Ver/Editar</a>
+                    <a href="/plans/{{ plan.id }}/export/pdf" class="btn btn-small btn-secondary" target="_blank">PDF</a>
+                    <a href="/plans/{{ plan.id }}/export/excel" class="btn btn-small btn-secondary">Excel</a>
+                    <button type="button" class="btn btn-small btn-danger"
+                        hx-delete="/plans/{{ plan.id }}"
+                        hx-target="#plans-list-section"
+                        hx-swap="outerHTML"
+                        hx-confirm="¿Eliminar este plan?">Eliminar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">No hay planes de acción. <a href="/plans/new">Crear uno</a>.</p>
+    {% endif %}
+</div>
