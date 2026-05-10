@@ -348,7 +348,6 @@ async def formats_home(request: Request, auth=Depends(require_role([ROLE_ADMIN] 
         },
     )
 
-
 @router.get("/{department_id}", response_class=HTMLResponse)
 async def department_formats_view(
     request: Request,

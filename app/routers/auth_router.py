@@ -1,7 +1,6 @@
 """Authentication routes."""
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import RedirectResponse, HTMLResponse
-from starlette.templating import _TemplateResponse
 
 from app.auth.supabase_auth import sign_in, sign_out
 from app.auth.dependencies import get_current_user_optional, get_access_token
@@ -16,7 +15,10 @@ async def login_page(request: Request):
     user = await get_current_user_optional(request)
     if user:
         return RedirectResponse(url="/formats", status_code=302)
-    return templates.TemplateResponse(request, "auth/login.html", context={})
+    return templates.TemplateResponse(
+        name="auth/login.html",
+        context={"request": request},
+    )
 
 
 @router.post("/login")
@@ -48,13 +50,13 @@ async def login_submit(
     except Exception as e:
         from app.templating import templates
         return templates.TemplateResponse(
-            "auth/login.html",
-            {"request": request, "error": str(e)},
+            name="auth/login.html",
+            context={"request": request, "error": str(e)},
         )
     from app.templating import templates
     return templates.TemplateResponse(
-        "auth/login.html",
-        {"request": request, "error": "Error al iniciar sesión"},
+        name="auth/login.html",
+        context={"request": request, "error": "Error al iniciar sesión"},
     )
 
 
