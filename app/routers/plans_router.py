@@ -83,10 +83,7 @@ def _render_plans_list_partial(request: Request, auth, plans):
     """Render the plans list partial for HTMX refreshes."""
     from app.templating import templates
 
-    return templates.TemplateResponse(
-        "plans/_plans_list.html",
-        {"request": request, "user": auth, "plans": plans},
-    )
+    return templates.TemplateResponse(request, "plans/_plans_list.html", context={"request": request, "user": auth, "plans": plans})
 
 
 def _record_stage(timings: list[tuple[str, float]], label: str, started_at: float) -> float:
@@ -134,16 +131,13 @@ async def list_plans_view(
         reverse=True,
     )
     stage_started_at = _record_stage(timings, "list_plans", stage_started_at)
-    response = templates.TemplateResponse(
-        "plans/list.html",
-        {
+    response = templates.TemplateResponse(request, "plans/list.html", context={
             "request": request,
             "user": auth,
             "plans": plans,
             "departments": departments,
             "selected_department": selected_department,
-        },
-    )
+        })
     _record_stage(timings, "render_page", stage_started_at)
     _apply_timing_headers(request, response, timings, "plans.list")
     return response
@@ -156,9 +150,7 @@ async def new_plan_form(request: Request, auth=Depends(require_role([ROLE_ADMIN]
     departments = await list_departments()
     user_dept = _get_user_department_id(auth)
     user_dept_obj = next((d for d in departments if str(d["id"]) == str(user_dept)), None) if user_dept else None
-    return templates.TemplateResponse(
-        "plans/form.html",
-        {
+    return templates.TemplateResponse(request, "plans/form.html", context={
             "request": request,
             "user": auth,
             "plan": None,
@@ -166,8 +158,7 @@ async def new_plan_form(request: Request, auth=Depends(require_role([ROLE_ADMIN]
             "departments": departments,
             "user_department_id": str(user_dept) if user_dept else None,
             "user_department_name": user_dept_obj["name"] if user_dept_obj else None,
-        },
-    )
+        })
 
 
 @router.post("", response_class=RedirectResponse)
@@ -247,9 +238,7 @@ async def view_plan(request: Request, plan_id: str, auth=Depends(require_role([R
         week_start += timedelta(weeks=1)
 
     stage_started_at = _record_stage(timings, "build_calendar", stage_started_at)
-    response = templates.TemplateResponse(
-        "plans/detail.html",
-        {
+    response = templates.TemplateResponse(request, "plans/detail.html", context={
             "request": request,
             "user": auth,
             "plan": plan,
@@ -257,8 +246,7 @@ async def view_plan(request: Request, plan_id: str, auth=Depends(require_role([R
             "activities": activities,
             "weeks": weeks,
             "week_day_numbers": week_day_numbers,
-        },
-    )
+        })
     _record_stage(timings, "render_page", stage_started_at)
     _apply_timing_headers(request, response, timings, "plans.view")
     return response

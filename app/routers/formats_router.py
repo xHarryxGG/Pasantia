@@ -339,14 +339,11 @@ async def formats_home(request: Request, auth=Depends(require_role([ROLE_ADMIN] 
     from app.templating import templates
 
     departments = await list_departments()
-    return templates.TemplateResponse(
-        "formats/home.html",
-        {
+    return templates.TemplateResponse(request, "formats/home.html", context={
             "request": request,
             "user": auth,
             "departments": departments,
-        },
-    )
+        })
 
 @router.get("/{department_id}", response_class=HTMLResponse)
 async def department_formats_view(
@@ -359,17 +356,14 @@ async def department_formats_view(
     is_admin = _validate_department_access(auth, department_id)
     selected_department = await _get_department_or_404(department_id)
 
-    return templates.TemplateResponse(
-        "formats/department.html",
-        {
+    return templates.TemplateResponse(request, "formats/department.html", context={
             "request": request,
             "user": auth,
             "department": selected_department,
             "is_admin": is_admin,
             "show_cmdnna_defenders": selected_department.get("code") == "CMDNNA",
             "show_fnmi_psicopedagogia": selected_department.get("code") == "FNMI",
-        },
-    )
+        })
 
 
 def _build_cmdnna_pdf_bytes(defenders: list[dict]) -> bytes:
@@ -517,8 +511,8 @@ async def fnmi_psicopedagogia_list_view(
         },
     }
     if request.headers.get("HX-Request") == "true":
-        return templates.TemplateResponse("fnmi_psicopedagogia/_table.html", context)
-    return templates.TemplateResponse("fnmi_psicopedagogia/list.html", context)
+        return templates.TemplateResponse(request, "fnmi_psicopedagogia/_table.html", context=context)
+    return templates.TemplateResponse(request, "fnmi_psicopedagogia/list.html", context=context)
 
 
 @router.get("/{department_id}/psicopedagogia/new", response_class=HTMLResponse)
@@ -530,16 +524,13 @@ async def fnmi_psicopedagogia_new_form(department_id: str, request: Request, aut
     if department.get("code") != "FNMI":
         raise HTTPException(404, "Este departamento no tiene la ficha psicopedagogica FNMI")
 
-    return templates.TemplateResponse(
-        "fnmi_psicopedagogia/form.html",
-        {
+    return templates.TemplateResponse(request, "fnmi_psicopedagogia/form.html", context={
             "request": request,
             "user": auth,
             "department": department,
             "form_record": None,
             "payload": _empty_fnmi_payload(),
-        },
-    )
+        })
 
 
 @router.post("/{department_id}/psicopedagogia")
@@ -587,16 +578,13 @@ async def fnmi_psicopedagogia_edit_form(department_id: str, form_id: str, reques
         raise HTTPException(404, "Ficha no encontrada")
 
     payload = {field: str(form_record.get(field) or "") for field in FNMI_PSICOPEDAGOGIA_FIELDS}
-    return templates.TemplateResponse(
-        "fnmi_psicopedagogia/form.html",
-        {
+    return templates.TemplateResponse(request, "fnmi_psicopedagogia/form.html", context={
             "request": request,
             "user": auth,
             "department": department,
             "form_record": form_record,
             "payload": payload,
-        },
-    )
+        })
 
 
 @router.post("/{department_id}/psicopedagogia/{form_id}")
@@ -732,8 +720,8 @@ async def cmdnna_defenders_list_view(
         },
     }
     if request.headers.get("HX-Request") == "true":
-        return templates.TemplateResponse("defensores/_table.html", context)
-    return templates.TemplateResponse("defensores/list.html", context)
+        return templates.TemplateResponse(request, "defensores/_table.html", context=context)
+    return templates.TemplateResponse(request, "defensores/list.html", context=context)
 
 
 @router.get("/{department_id}/defensores/new", response_class=HTMLResponse)
@@ -745,9 +733,7 @@ async def cmdnna_defenders_new_form(department_id: str, request: Request, auth=D
     if department.get("code") != "CMDNNA":
         raise HTTPException(404, "Este departamento no tiene el listado de defensores CMDNNA")
 
-    return templates.TemplateResponse(
-        "defensores/form.html",
-        {
+    return templates.TemplateResponse(request, "defensores/form.html", context={
             "request": request,
             "user": auth,
             "department": department,
@@ -755,8 +741,7 @@ async def cmdnna_defenders_new_form(department_id: str, request: Request, auth=D
             "payload": _empty_cmdnna_payload(),
             "condiciones": CMDNNA_CONDICIONES,
             "tipos_defensor": CMDNNA_TIPOS_DEFENSOR,
-        },
-    )
+        })
 
 
 @router.post("/{department_id}/defensores")
@@ -800,9 +785,7 @@ async def cmdnna_defenders_edit_form(department_id: str, defender_id: str, reque
         raise HTTPException(404, "Defensor no encontrado")
 
     payload = {field: str(defender.get(field) or "") for field in CMDNNA_DEFENDER_FIELDS}
-    return templates.TemplateResponse(
-        "defensores/form.html",
-        {
+    return templates.TemplateResponse(request, "defensores/form.html", context={
             "request": request,
             "user": auth,
             "department": department,
@@ -810,8 +793,7 @@ async def cmdnna_defenders_edit_form(department_id: str, defender_id: str, reque
             "payload": payload,
             "condiciones": CMDNNA_CONDICIONES,
             "tipos_defensor": CMDNNA_TIPOS_DEFENSOR,
-        },
-    )
+        })
 
 
 @router.post("/{department_id}/defensores/{defender_id}")

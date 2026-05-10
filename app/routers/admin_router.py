@@ -16,10 +16,7 @@ async def list_users_view(request: Request, auth=Depends(require_role([ROLE_ADMI
     from app.templating import templates
     users = await list_users_with_profiles()
     departments = await list_departments()
-    return templates.TemplateResponse(
-        "admin/users.html",
-        {"request": request, "user": auth, "users": users, "departments": departments, "roles": ALL_ROLES},
-    )
+    return templates.TemplateResponse(request, "admin/users.html", context={"request": request, "user": auth, "users": users, "departments": departments, "roles": ALL_ROLES})
 
 
 @router.post("/users")
@@ -45,17 +42,14 @@ async def create_user_submit(
         from app.templating import templates
         users = await list_users_with_profiles()
         departments = await list_departments()
-        return templates.TemplateResponse(
-            "admin/users.html",
-            {
+        return templates.TemplateResponse(request, "admin/users.html", context={
                 "request": request,
                 "user": auth,
                 "users": users,
                 "departments": departments,
                 "roles": ALL_ROLES,
                 "error": str(e),
-            },
-        )
+            })
     return RedirectResponse(url="/admin/users", status_code=302)
 
 
@@ -79,10 +73,7 @@ async def update_user_submit(
         from app.templating import templates
         users = await list_users_with_profiles()
         departments = await list_departments()
-        return templates.TemplateResponse(
-            "admin/_users_table.html",
-            {"request": request, "users": users, "departments": departments, "roles": ALL_ROLES},
-        )
+        return templates.TemplateResponse(request, "admin/_users_table.html", context={"request": request, "users": users, "departments": departments, "roles": ALL_ROLES})
     return RedirectResponse(url="/admin/users", status_code=302)
 
 
@@ -98,8 +89,5 @@ async def delete_user_route(
         from app.templating import templates
         users = await list_users_with_profiles()
         departments = await list_departments()
-        return templates.TemplateResponse(
-            "admin/_users_table.html",
-            {"request": request, "users": users, "departments": departments, "roles": ALL_ROLES},
-        )
+        return templates.TemplateResponse(request, "admin/_users_table.html", context={"request": request, "users": users, "departments": departments, "roles": ALL_ROLES})
     return RedirectResponse(url="/admin/users", status_code=302)

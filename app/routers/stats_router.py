@@ -42,9 +42,7 @@ async def stats_page(
     # Build a range of years for the selector (current year ± 5)
     years = list(range(current_year - 5, current_year + 2))
 
-    return templates.TemplateResponse(
-        "stats/stats.html",
-        {
+    return templates.TemplateResponse(request, "stats/stats.html", context={
             "request": request,
             "user": auth,
             "is_admin": is_admin,
@@ -52,8 +50,7 @@ async def stats_page(
             "user_department_id": user_dept_id,
             "current_year": current_year,
             "years": years,
-        },
-    )
+        })
 
 
 @router.get("/api/data", response_class=JSONResponse)

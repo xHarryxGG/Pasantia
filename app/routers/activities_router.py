@@ -114,16 +114,13 @@ async def list_activities(
     weeks, week_day_numbers = _get_weeks_and_day_numbers(plan["year"], plan["month"])
     stage_started_at = _record_stage(timings, "build_calendar", stage_started_at)
 
-    response = templates.TemplateResponse(
-        "plans/_activities_table.html",
-        {
+    response = templates.TemplateResponse(request, "plans/_activities_table.html", context={
             "request": request,
             "plan": plan,
             "activities": activities,
             "weeks": weeks,
             "week_day_numbers": week_day_numbers,
-        },
-    )
+        })
     _record_stage(timings, "render_partial", stage_started_at)
     _apply_timing_headers(request, response, timings, "activities.list")
     return response
@@ -188,16 +185,13 @@ async def create_activity_route(
         stage_started_at = _record_stage(timings, "build_calendar", stage_started_at)
 
         from app.templating import templates
-        response = templates.TemplateResponse(
-            "plans/_activities_table.html",
-            {
+        response = templates.TemplateResponse(request, "plans/_activities_table.html", context={
                 "request": request,
                 "plan": plan,
                 "activities": activities,
                 "weeks": weeks,
                 "week_day_numbers": week_day_numbers,
-            },
-        )
+            })
         _record_stage(timings, "render_partial", stage_started_at)
         _apply_timing_headers(request, response, timings, "activities.create")
         return response
@@ -285,16 +279,13 @@ async def delete_activity_route(
         weeks, week_day_numbers = _get_weeks_and_day_numbers(plan_year, plan_month)
         stage_started_at = _record_stage(timings, "build_calendar", stage_started_at)
 
-        response = templates.TemplateResponse(
-            "plans/_activities_table.html",
-            {
+        response = templates.TemplateResponse(request, "plans/_activities_table.html", context={
                 "request": request,
                 "plan": plan,
                 "activities": activities,
                 "weeks": weeks,
                 "week_day_numbers": week_day_numbers,
-            },
-        )
+            })
         _record_stage(timings, "render_partial", stage_started_at)
         _apply_timing_headers(request, response, timings, "activities.delete")
         return response
