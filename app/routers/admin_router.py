@@ -91,3 +91,30 @@ async def delete_user_route(
         departments = await list_departments()
         return templates.TemplateResponse(request, "admin/_users_table.html", context={"request": request, "users": users, "departments": departments, "roles": ALL_ROLES})
     return RedirectResponse(url="/admin/users", status_code=302)
+
+
+@router.post("/users/{user_id}/password")
+async def update_user_password(
+    request: Request,
+    user_id: str,
+    auth=Depends(require_role([ROLE_ADMIN])),
+):
+    """Update a user's password (admin only)."""
+    from fastapi.responses import JSONResponse
+    from app.services.users_service import update_user_password as svc_update_pw
+    try:
+        body = await request.json()
+        new_password = body.get("new_password", "").strip()
+        if not new_password or len(new_password) < 6:
+            return JSONResponse(
+                status_code=422,
+                content={"detail": "La contraseña debe tener al menos 6 caracteres."},
+            )
+        await svc_update_pw(user_id=user_id, new_password=new_password)
+        return JSONResponse(content={"ok": True, "message": "Contraseña actualizada correctamente."})
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Error al actualizar la contraseña: {e}"},
+        )
+

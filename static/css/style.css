@@ -158,12 +158,7 @@ body {
         padding-right: 3rem;
     }
 
-    .header h1 {
-        width: 100%;
-        font-size: 1rem;
-        text-align: center;
-        line-height: 1.2;
-    }
+
 
     .menu-toggle {
         display: inline-flex;
@@ -229,9 +224,7 @@ body {
         gap: 0.5rem;
     }
 
-    .header h1 {
-        font-size: 0.95rem;
-    }
+
 
     .menu-toggle {
         right: 0.75rem;
@@ -761,6 +754,7 @@ html[data-theme="light"] body {
 }
 
 .header {
+    padding: 10px 16px;
     position: sticky;
     top: 0;
     z-index: 20;
@@ -1417,3 +1411,380 @@ html[data-theme="light"] .theme-track {
     }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   REQ 1 ── LOGOS DINÁMICOS (HEADER + LOGIN)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.logo-sipf-wrap {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    position: relative;
+    width: 55px;
+    height: 55px;
+    margin-right: 0;
+}
+
+.logo-sipf {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 280ms ease;
+    border-radius: 8px;
+}
+
+/* Modo oscuro (default): mostrar blanco, ocultar negro */
+.logo-sipf-light { opacity: 0; pointer-events: none; }
+.logo-sipf-dark  { opacity: 1; }
+
+/* Modo claro: mostrar negro, ocultar blanco */
+html[data-theme="light"] .logo-sipf-light { opacity: 1; }
+html[data-theme="light"] .logo-sipf-dark  { opacity: 0; pointer-events: none; }
+
+/* Login logo */
+.login-logo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    position: relative;
+    height: 96px;
+}
+
+.login-logo {
+    max-width: 200px;
+    max-height: 130px;
+    object-fit: contain;
+    position: absolute;
+    transition: opacity 280ms ease;
+}
+
+.login-logo-light { opacity: 0; pointer-events: none; }
+.login-logo-dark  { opacity: 1; }
+
+html[data-theme="light"] .login-logo-light { opacity: 1; }
+html[data-theme="light"] .login-logo-dark  { opacity: 0; pointer-events: none; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   REQ 3 ── FAB MANUAL (ESQUINA INFERIOR IZQUIERDA)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.manual-fab {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    z-index: 55;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.7rem 1.1rem 0.7rem 0.85rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 220ms ease, background 200ms ease, color 200ms ease, border-color 200ms ease;
+    background: color-mix(in srgb, var(--surface), var(--primary) 18%);
+    color: var(--text);
+    border: 1.5px solid color-mix(in srgb, var(--primary), transparent 40%);
+    box-shadow: 0 8px 24px rgba(6, 11, 27, 0.32), 0 0 0 1px color-mix(in srgb, var(--primary), transparent 70%);
+    backdrop-filter: blur(8px);
+}
+
+.manual-fab:hover {
+    transform: translateY(-3px) scale(1.03);
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--primary), transparent 50%);
+    text-decoration: none;
+}
+
+.manual-fab:active {
+    transform: scale(0.97);
+}
+
+html[data-theme="light"] .manual-fab {
+    background: #ffffff;
+    color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary), transparent 30%);
+    box-shadow: 0 6px 20px rgba(28, 44, 90, 0.18);
+}
+
+html[data-theme="light"] .manual-fab:hover {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.manual-fab svg {
+    flex-shrink: 0;
+    transition: transform 180ms ease;
+}
+
+.manual-fab:hover svg {
+    transform: scale(1.12);
+}
+
+.manual-fab-label {
+    white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REQ 2 ── CELDA DE CONTRASEÑA EN TABLA + MODAL + TOAST
+   ═══════════════════════════════════════════════════════════════════ */
+
+.password-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 160px;
+}
+
+.password-cell .pw-field {
+    flex: 1;
+    min-width: 80px;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface-soft), transparent 14%);
+    color: var(--text);
+    font-size: 0.82rem;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.28rem 0.4rem;
+    background: color-mix(in srgb, var(--surface-soft), transparent 20%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+    flex-shrink: 0;
+}
+
+.btn-icon:hover {
+    background: color-mix(in srgb, var(--primary), transparent 80%);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Modal overlay */
+.pw-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(8, 13, 32, 0.72);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.pw-modal {
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--border), transparent 10%);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 24px 56px rgba(6, 11, 27, 0.45);
+    animation: pw-modal-in 240ms cubic-bezier(0.2, 0.85, 0.3, 1);
+}
+
+@keyframes pw-modal-in {
+    from { opacity: 0; transform: translateY(24px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pw-modal h3 {
+    margin: 0 0 0.25rem;
+    font-family: "Sora", "Manrope", sans-serif;
+    font-size: 1.15rem;
+    color: var(--text);
+}
+
+.pw-modal-email {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0 0 1.5rem;
+}
+
+.pw-input-wrap {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.pw-input-wrap input {
+    flex: 1;
+}
+
+.pw-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+/* Toast de confirmación */
+.sipf-toast {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 300;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.8rem 1.5rem;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 16px 40px rgba(6, 11, 27, 0.35);
+    opacity: 0;
+    transition: opacity 300ms ease, transform 300ms cubic-bezier(0.2, 0.85, 0.3, 1);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.sipf-toast.sipf-toast-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.sipf-toast-success {
+    border-color: var(--success);
+    background: color-mix(in srgb, var(--surface), var(--success) 10%);
+    color: var(--success);
+}
+
+.sipf-toast-error {
+    border-color: var(--error);
+    background: color-mix(in srgb, var(--surface), var(--error) 10%);
+    color: var(--error);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER BRAND (logo + título agrupados)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.header-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.header-brand h1 {
+    margin: 0;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 1100px) {
+    .header-brand {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .header-brand h1 {
+        font-size: 1rem;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 600px) {
+    .header-brand h1 {
+        font-size: 0.9rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TABLA DE USUARIOS — BOTONES Y ACCIONES
+   ═══════════════════════════════════════════════════════════════════ */
+
+.user-actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+}
+
+/* Botón guardar con acento verde/primario suave */
+.btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: color-mix(in srgb, var(--success), transparent 82%);
+    color: var(--success);
+    border: 1px solid color-mix(in srgb, var(--success), transparent 55%);
+    border-radius: 10px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: "Manrope", sans-serif;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 120ms ease;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    background: var(--success);
+    color: #fff;
+    border-color: var(--success);
+    transform: translateY(-1px);
+}
+
+/* Botón eliminar rediseñado */
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 10px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Botón ícono de editar contraseña */
+.pw-edit-btn {
+    padding: 0.3rem 0.45rem;
+    border-radius: 8px;
+}
+
+/* Select de rol en tabla */
+.role-select {
+    min-width: 80px;
+    padding: 0.25rem 0.4rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+}
+
+/* Campo de contraseña enmascarado más compacto */
+.password-cell .pw-field {
+    max-width: 100px;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+    letter-spacing: 0.06em;
+}

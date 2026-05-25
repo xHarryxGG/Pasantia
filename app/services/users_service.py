@@ -85,3 +85,13 @@ async def delete_user(user_id: str):
     """Delete a user (auth + profile cascades)."""
     supabase = await get_async_supabase_client(use_service_role=True)
     await supabase.auth.admin.delete_user(user_id)
+
+
+async def update_user_password(user_id: str, new_password: str):
+    """Update a user's password via Supabase Admin API."""
+    supabase = await get_async_supabase_client(use_service_role=True)
+    await supabase.auth.admin.update_user_by_id(
+        user_id,
+        {"password": new_password},
+    )
+

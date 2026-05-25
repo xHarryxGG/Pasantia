@@ -51,4 +51,151 @@
         {% include "admin/_users_table.html" %}
     </div>
 </div>
+
+<!-- ── Modal: Cambiar contraseña ──────────────────────────────── -->
+<div id="pw-modal-overlay" class="pw-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="pw-modal-title">
+    <div class="pw-modal">
+        <h3 id="pw-modal-title">Cambiar Contraseña</h3>
+        <p id="pw-modal-user-email" class="pw-modal-email"></p>
+        <form id="pw-modal-form">
+            <div class="form-group">
+                <label for="pw-new">Nueva contraseña</label>
+                <div class="pw-input-wrap">
+                    <input type="password" id="pw-new" name="new_password" required minlength="6"
+                           placeholder="Mínimo 6 caracteres">
+                    <button type="button" id="pw-new-toggle" class="btn btn-small btn-icon" title="Mostrar contraseña">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="pw-modal-error" class="alert alert-error" style="display:none;"></div>
+            <div class="pw-modal-actions">
+                <button type="submit" id="pw-modal-submit" class="btn btn-primary">Guardar contraseña</button>
+                <button type="button" id="pw-modal-cancel" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    /* ── Lógica de visibilidad de contraseña en la tabla ─── */
+    document.addEventListener("click", function (e) {
+        /* Botón ojo: toggle mostrar/ocultar */
+        var toggleBtn = e.target.closest(".pw-toggle-btn");
+        if (toggleBtn) {
+            var userId = toggleBtn.dataset.userId;
+            var field = document.getElementById("pw-field-" + userId);
+            if (!field) return;
+            var eyeOpen = toggleBtn.querySelector(".eye-open");
+            var eyeClosed = toggleBtn.querySelector(".eye-closed");
+            var isHidden = field.type === "password";
+            field.type = isHidden ? "text" : "password";
+            if (!isHidden) field.value = "••••••••";
+            eyeOpen.style.display = isHidden ? "none" : "";
+            eyeClosed.style.display = isHidden ? "" : "none";
+        }
+
+        /* Botón editar contraseña */
+        var editBtn = e.target.closest(".pw-edit-btn");
+        if (editBtn) {
+            openModal(editBtn.dataset.userId, editBtn.dataset.userEmail);
+        }
+    });
+
+    /* ── Modal ───────────────────────────────────────────── */
+    var overlay = document.getElementById("pw-modal-overlay");
+    var form    = document.getElementById("pw-modal-form");
+    var emailEl = document.getElementById("pw-modal-user-email");
+    var errEl   = document.getElementById("pw-modal-error");
+    var pwInput = document.getElementById("pw-new");
+    var pwToggle= document.getElementById("pw-new-toggle");
+    var cancelBtn = document.getElementById("pw-modal-cancel");
+    var currentUserId = null;
+
+    function openModal(userId, email) {
+        currentUserId = userId;
+        emailEl.textContent = email;
+        pwInput.value = "";
+        pwInput.type = "password";
+        errEl.style.display = "none";
+        overlay.style.display = "flex";
+        pwInput.focus();
+    }
+
+    function closeModal() {
+        overlay.style.display = "none";
+        currentUserId = null;
+    }
+
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+    overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) closeModal();
+    });
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeModal();
+    });
+
+    /* Toggle ojo dentro del modal */
+    if (pwToggle) {
+        pwToggle.addEventListener("click", function () {
+            pwInput.type = pwInput.type === "password" ? "text" : "password";
+        });
+    }
+
+    /* Submit del modal */
+    if (form) {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            errEl.style.display = "none";
+            var newPw = pwInput.value.trim();
+            if (!newPw || newPw.length < 6) {
+                errEl.textContent = "La contraseña debe tener al menos 6 caracteres.";
+                errEl.style.display = "block";
+                return;
+            }
+            var submitBtn = document.getElementById("pw-modal-submit");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Guardando…";
+            try {
+                var resp = await fetch("/admin/users/" + currentUserId + "/password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ new_password: newPw }),
+                });
+                var data = await resp.json();
+                if (!resp.ok) throw new Error(data.detail || "Error al actualizar la contraseña.");
+                closeModal();
+                /* Pequeño toast de éxito */
+                showToast("Contraseña actualizada correctamente.", "success");
+            } catch (err) {
+                errEl.textContent = err.message;
+                errEl.style.display = "block";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Guardar contraseña";
+            }
+        });
+    }
+
+    /* ── Toast de confirmación ───────────────────────────── */
+    function showToast(msg, type) {
+        var toast = document.createElement("div");
+        toast.className = "sipf-toast sipf-toast-" + (type || "info");
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        requestAnimationFrame(function () { toast.classList.add("sipf-toast-show"); });
+        setTimeout(function () {
+            toast.classList.remove("sipf-toast-show");
+            setTimeout(function () { toast.remove(); }, 400);
+        }, 3500);
+    }
+})();
+</script>
 {% endblock %}

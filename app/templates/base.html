@@ -22,7 +22,13 @@
     {% block body %}
     <header class="header">
         <div class="header-content">
-            <h1>SIPF - Sistema Integral de Protección de la Familia</h1>
+            <div class="header-brand">
+                <span class="logo-sipf-wrap">
+                    <img src="/static/images/logo_sipf_white.png" alt="Logo SIPF" class="logo-sipf logo-sipf-dark" width="55" height="55">
+                    <img src="/static/images/logo_sipf_black.png" alt="Logo SIPF" class="logo-sipf logo-sipf-light" width="55" height="55">
+                </span>
+                <h1>SIPF - Sistema Integral de Protección de la Familia</h1>
+            </div>
             <button class="menu-toggle" aria-label="Menú" id="menu-toggle">
                 <img src="/static/images/menu-claro.svg" alt="Menú" class="menu-icon menu-icon-light">
                 <img src="/static/images/menu-oscuro.svg" alt="Menú" class="menu-icon menu-icon-dark">
@@ -57,6 +63,9 @@
             </span>
         </label>
     </div>
+
+    {% block manual_fab %}{% endblock %}
+
     {% endblock %}
     <script src="/static/js/theme-toggle.js"></script>
 </body>

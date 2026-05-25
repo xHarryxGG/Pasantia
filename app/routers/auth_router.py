@@ -50,10 +50,24 @@ async def login_submit(
             return redirect
     except Exception as e:
         from app.templating import templates
+        # Traducir mensajes de Supabase al español
+        raw = str(e).lower()
+        if "invalid login credentials" in raw or "invalid_credentials" in raw:
+            error_msg = "Correo electrónico o contraseña incorrectos."
+        elif "email not confirmed" in raw:
+            error_msg = "La cuenta no ha sido confirmada. Revise su correo electrónico."
+        elif "user not found" in raw:
+            error_msg = "No existe una cuenta con ese correo electrónico."
+        elif "too many requests" in raw or "rate limit" in raw:
+            error_msg = "Demasiados intentos fallidos. Espere unos minutos e intente de nuevo."
+        elif "network" in raw or "connection" in raw:
+            error_msg = "Error de conexión. Verifique su internet e intente de nuevo."
+        else:
+            error_msg = "No se pudo iniciar sesión. Verifique sus credenciales e intente de nuevo."
         return templates.TemplateResponse(
             request,
             "auth/login.html",
-            context={"request": request, "error": str(e)},
+            context={"request": request, "error": error_msg},
         )
     from app.templating import templates
     return templates.TemplateResponse(
