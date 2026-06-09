@@ -29,6 +29,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px 30px;
     background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary) 100%);
 }
 
@@ -50,6 +51,7 @@ body {
     color: var(--text-muted);
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .login-form .form-group {
@@ -72,6 +74,7 @@ body {
 
 .login-form button {
     width: 100%;
+    height: 36px;
     margin-top: 0.5rem;
 }
 
@@ -1136,7 +1139,7 @@ html[data-theme="light"] .theme-track {
     }
 
     .main {
-        padding: 1.2rem 1rem 2.2rem;
+        padding: 50px 30px;
     }
 
     .department-grid {
@@ -1394,9 +1397,6 @@ html[data-theme="light"] .theme-track {
 }
 
 @media (max-width: 500px) {
-    .stats-filters {
-        flex-direction: column;
-    }
 
     .stats-filter-group {
         min-width: 100%;
