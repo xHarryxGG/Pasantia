@@ -9,8 +9,18 @@
 
 <div class="department-grid">
     {% for dept in departments %}
+    {% set hero_img = '' %}
+    {% if dept.code|upper == 'CMDNNA' %}
+        {% set hero_img = 'img_cmdnna.jpeg' %}
+    {% elif dept.code|upper == 'CPNNA' %}
+        {% set hero_img = 'img_cpnna.jpeg' %}
+    {% elif dept.code|upper == 'FNMI' %}
+        {% set hero_img = 'img_fdn.jpeg' %}
+    {% elif dept.code|upper == 'IMMUJER' %}
+        {% set hero_img = 'img_inmujer.jpeg' %}
+    {% endif %}
     <a href="/formats/{{ dept.id }}" class="department-card">
-        <div class="card-preview card-preview-department">
+        <div class="card-preview card-preview-department"{% if hero_img %} style="background-image: linear-gradient(160deg, rgba(33, 50, 95, 0.84), rgba(23, 37, 79, 0.72) 45%, rgba(14, 25, 54, 0.64)), url('/static/images/{{ hero_img }}'); background-size: cover; background-position: center; background-repeat: no-repeat;"{% endif %}>
             <span class="card-preview-label">{{ dept.code }}</span>
         </div>
         <h3>{{ dept.name }}</h3>
